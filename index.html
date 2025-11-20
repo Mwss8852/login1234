@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+<script>
+  async function handleLogin(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+
+    const resposta = await fetch("http://localhost:3000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, senha })
+    });
+
+    const dados = await resposta.json();
+    alert(dados.mensagem);
+
+    atualizarListaBackend();
+
+    document.getElementById("email").value = "";
+    document.getElementById("senha").value = "";
+  }
+
+  async function atualizarListaBackend() {
+    const resposta = await fetch("http://localhost:3000/usuarios");
+    const usuarios = await resposta.json();
+
+    const lista = document.getElementById("listaUsuarios");
+    lista.innerHTML = "";
+
+    usuarios.forEach((u, i) => {
+      const li = document.createElement("li");
+      li.className =
+        "p-3 border rounded-lg bg-white dark:bg-gray-800 text-black dark:text-white";
+      li.textContent = `${i + 1}. ${u.email} — ${u.senha}`;
+      lista.appendChild(li);
+    });
+  }
+
+  function toggleSenha() {
+    const input = document.getElementById("senha");
+    const icon = document.getElementById("toggleIcon");
+
+    if (input.type === "password") {
+      input.type = "text";
+      icon.textContent = "visibility";
+    } else {
+      input.type = "password";
+      icon.textContent = "visibility_off";
+    }
+  }
+</script>
+
+</head>
+<body class="bg-gray-100 dark:bg-black">
+
+<div class="flex h-screen items-center justify-center">
+  <div class="max-w-sm w-full bg-white dark:bg-gray-900 p-6 rounded-xl shadow">
+
+    <h1 class="text-center text-2xl font-bold mb-6 text-black dark:text-white">
+      Login
+    </h1>
+    
+
+    <form onsubmit="handleLogin(event)" class="flex flex-col gap-4">
+
+      <div>
+        <label class="text-black dark:text-white">E-mail</label>
+        <input id="email" type="email" required
+               class="mt-1 w-full p-3 rounded-lg border dark:bg-gray-800 dark:text-white"/>
+      </div>
+
+      <div class="relative">
+        <label class="text-black dark:text-white">Senha</label>
+        <input id="senha" type="password" required
+               class="mt-1 w-full p-3 rounded-lg border dark:bg-gray-800 dark:text-white pr-10"/>
+        <span id="toggleIcon" onclick="toggleSenha()" class="material-symbols-outlined absolute right-3 top-10 cursor-pointer text-gray-500">
+          visibility_off
+        </span>
+      </div>
+
+      <button class="mt-4 bg-green-500 text-white py-3 rounded-lg font-bold">
+        Entrar
+      </button>
+
+    </form>
+
+    <h2 class="mt-6 text-lg font-bold text-black dark:text-white">Usuários cadastrados:</h2>
+    <ul id="listaUsuarios" class="mt-2 flex flex-col gap-2"></ul>
+
+  </div>
+</div>
+
+</body>
+</html>
